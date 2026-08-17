@@ -42,16 +42,51 @@ h1 {
   margin: 0 0 20px;
 }
 
-/* 返回链接 */
-.back-link {
-  display: inline-block;
-  margin: 16px 0 0 16px;
+/* 顶部固定导航条（返回功能中心） */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+}
+.topbar-inner {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar-back {
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.topbar-back:hover {
+  color: var(--primary-hover);
+}
+.topbar-title {
   color: var(--muted);
   font-size: 13px;
-  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.back-link:hover {
-  color: var(--primary);
+body.has-topbar {
+  padding-top: 48px;
+}
+body.has-topbar .wrap {
+  margin-top: 24px;
 }
 
 /* 首页功能网格 */
