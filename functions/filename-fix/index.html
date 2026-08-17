@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文件名纠错</title>
+    <link rel="stylesheet" href="../../style.css" />
+  </head>
+  <body>
+    <a class="back-link" href="../../index.html">← 返回功能中心</a>
+    <div class="wrap">
+      <div class="card">
+        <h1>文件名纠错</h1>
+        <p class="sub">
+          清理文件名里的特殊符号，输出 Windows 安全可用的干净文件名（自动复制）
+        </p>
+
+        <textarea
+          id="srcInput"
+          class="src-input"
+          rows="4"
+          placeholder="把待清洗的文件名粘贴到这里，可含任意特殊字符"
+          spellcheck="false"
+        ></textarea>
+
+        <div class="row" style="margin-top: 12px">
+          <button class="gen" id="fixBtn">清洗文件名</button>
+          <button class="ghost" id="copyBtn">复制结果</button>
+        </div>
+
+        <div class="result">
+          <div class="result-label">清洗后：</div>
+          <div class="output" id="output">—</div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../base.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>

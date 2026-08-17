@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>技能链接生成器</title>
+    <link rel="stylesheet" href="../../style.css" />
+  </head>
+  <body>
+    <a class="back-link" href="../../index.html">← 返回功能中心</a>
+    <div class="wrap">
+      <div class="card">
+        <h1>技能链接生成器</h1>
+        <p class="sub">输入技能名，一键生成 GitHub 链接并复制到剪贴板</p>
+
+        <div class="row">
+          <input
+            id="skillName"
+            type="text"
+            placeholder="例如：suffix-to-json-yashu 或 video-course-recorder-yashu"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="gen" id="genBtn">生成技能链接</button>
+        </div>
+        <p class="prefix-hint">前缀（固定）：<span id="prefixText"></span></p>
+
+        <div class="history">
+          <div class="history-head">
+            <h2>生成记录</h2>
+            <button class="clear-btn" id="clearBtn">清空</button>
+          </div>
+          <ul class="list" id="list"></ul>
+          <div class="empty" id="emptyTip">暂无记录</div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../base.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>

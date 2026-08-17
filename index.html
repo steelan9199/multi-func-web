@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>功能中心</title>
+    <link rel="icon" href="skill-link-generator.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>功能中心</h1>
+        <p class="sub">选择一个功能开始使用 · 全部本地运行，无需联网</p>
+        <div class="home-grid" id="homeGrid"></div>
+      </div>
+    </div>
+
+    <script src="functions.js"></script>
+    <script>
+      (function () {
+        const grid = document.getElementById("homeGrid");
+        const list = window.FUNCTIONS || [];
+        if (list.length === 0) {
+          grid.innerHTML =
+            '<div class="empty">暂无功能，请在 functions.js 中添加</div>';
+          return;
+        }
+        list.forEach(function (fn) {
+          const a = document.createElement("a");
+          a.className = "fn-card";
+          a.href = "functions/" + fn.id + "/index.html";
+          a.innerHTML =
+            '<div class="fn-icon">' + (fn.icon || "🔧") + "</div>" +
+            '<div class="fn-name">' + fn.name + "</div>" +
+            '<div class="fn-desc">' + (fn.desc || "") + "</div>";
+          grid.appendChild(a);
+        });
+      })();
+    </script>
+  </body>
+</html>
