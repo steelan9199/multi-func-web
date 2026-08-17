@@ -52,7 +52,7 @@
       }
       out += ch;
     }
-    return out;
+    return out.trim();
   }
 
   function copyText(text) {
