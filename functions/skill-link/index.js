@@ -109,6 +109,7 @@
       return u !== url;
     });
     history.unshift(url);
+    history.splice(6);
     saveHistory();
     render();
 
