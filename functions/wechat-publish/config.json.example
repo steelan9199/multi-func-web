@@ -1,0 +1,11 @@
+{
+  "markdownFilePath": "D:/software/workBuddyWorkspace/字幕纠错技能_公众号.md",
+  "title": "把字幕丢进去，10秒还你干净稿，省下半小时校对错别字",
+  "AUTHOR": "牙叔教程",
+  "prefix": "本文由AI创作\n",
+  "suffix": "### 写本文章用到的工具\n- WorkBuddy\n\n### 写本文章用到的Skill\n- 本地Markdown发布到公众号           https://github.com/steelan9199/wechat-publisher/tree/main/skills/wechat-publisher-yashu\n- 飞书云文档管理以及Markdown上传下载  https://github.com/steelan9199/wechat-publisher/tree/main/skills/feishu-docx-yashu\n- 顶级意图架构与需求对齐工具          https://github.com/steelan9199/wechat-publisher/tree/main/skills/elite-intent-architect-yashu",
+  "APP_ID": "微信开发者平台的 AppID",
+  "APP_SECRET": "微信开发者平台的 AppSecret",
+  "coverFilePath": "D:/skill/private-skills/.trae/skills/wechat-publisher-yashu/cover.jpg",
+  "theme": "blue"
+}

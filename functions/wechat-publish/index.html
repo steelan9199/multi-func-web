@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Markdown 发公众号</title>
+    <link rel="stylesheet" href="../../style.css" />
+    <style>
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        margin-bottom: 12px;
+        color: #666;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #c0392b;
+      }
+      .dot.on {
+        background: #27ae60;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: #555;
+        margin: 14px 0 6px;
+      }
+      input[type="text"],
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        font-family: "Cascadia Code", Consolas, "Microsoft YaHei", monospace;
+        font-size: 13px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fafafa;
+        color: #222;
+      }
+      textarea {
+        min-height: 320px;
+        resize: vertical;
+        line-height: 1.5;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+      .row input {
+        flex: 1;
+      }
+      .btn {
+        background: #2d6cdf;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 18px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .btn:disabled {
+        background: #a9c0e8;
+        cursor: not-allowed;
+      }
+      .btn.secondary {
+        background: #eee;
+        color: #333;
+      }
+      #log {
+        margin-top: 16px;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        border-radius: 8px;
+        padding: 12px;
+        height: 260px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-family: "Cascadia Code", Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .hint {
+        font-size: 12px;
+        color: #999;
+        margin-top: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="back-link" href="../../index.html">← 返回功能中心</a>
+    <div class="wrap">
+      <div class="card">
+        <h1>Markdown 发公众号</h1>
+        <p class="sub">输入本地 .md 绝对路径，编辑配置，一键发到公众号草稿箱</p>
+
+        <div class="status">
+          <span class="dot" id="dot"></span>
+          <span id="statusText">正在检测后台…</span>
+        </div>
+
+        <label for="apiBase"
+          >后台地址（改了端口就先改这里，自动记住；需与 start-server.bat
+          端口一致）</label
+        >
+        <div class="row">
+          <input
+            id="apiBase"
+            type="text"
+            placeholder="http://localhost:18789"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <label for="filePath">Markdown 文件绝对路径（必须以 .md 结尾）</label>
+        <div class="row">
+          <input
+            id="filePath"
+            type="text"
+            placeholder="例如：D:/software/workBuddyWorkspace/字幕纠错技能_公众号.md"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="btn secondary" id="reloadBtn">重载配置</button>
+        </div>
+        <p class="hint">该路径会覆盖下方配置里的 markdownFilePath。</p>
+
+        <label for="config">发布配置（可编辑，发送时原样传给后台）</label>
+        <textarea
+          id="config"
+          spellcheck="false"
+          placeholder="加载中…"
+        ></textarea>
+
+        <div class="row" style="margin-top: 14px">
+          <button class="btn" id="sendBtn" disabled>发 送</button>
+        </div>
+
+        <div id="log"></div>
+      </div>
+    </div>
+
+    <script src="../../base.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>

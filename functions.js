@@ -19,4 +19,10 @@ window.FUNCTIONS = [
     icon: "🎨",
     desc: "鼠标移到色轮读取像素颜色，按 C 切换 HEX/RGB，单击复制",
   },
+  {
+    id: "wechat-publish",
+    name: "Markdown 发公众号",
+    icon: "📤",
+    desc: "输入 .md 绝对路径，编辑配置，一键发到公众号草稿箱（需后台）",
+  },
 ];

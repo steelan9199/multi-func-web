@@ -1,0 +1,14 @@
+{
+  "name": "functionpage-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "功能网页本地后台（Hono 网关 + 插件式路由）",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "hono": "^4.6.14"
+  }
+}
