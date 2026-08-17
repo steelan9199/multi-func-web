@@ -1,1 +1,4 @@
 .vscode/settings.json
+server/node_modules/
+temp/
+functions/wechat-publish/config.json
