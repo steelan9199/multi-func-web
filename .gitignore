@@ -2,3 +2,9 @@
 server/node_modules/
 temp/
 functions/wechat-publish/config.json
+
+# 忽略所有 PNG / ICO 图片（本地保留，仅从 git 远端移除）
+*.png
+*.PNG
+*.ico
+*.ICO
