@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文件图标更换器</title>
+    <link rel="stylesheet" href="../../style.css" />
+    <style>
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        margin-bottom: 12px;
+        color: #666;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #c0392b;
+      }
+      .dot.on {
+        background: #27ae60;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: #555;
+        margin: 14px 0 6px;
+      }
+      input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        font-family: "Cascadia Code", Consolas, "Microsoft YaHei", monospace;
+        font-size: 13px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fafafa;
+        color: #222;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+      .row input {
+        flex: 1;
+      }
+      .btn {
+        background: #2d6cdf;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 18px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .btn:disabled {
+        background: #a9c0e8;
+        cursor: not-allowed;
+      }
+      .picker {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 180px;
+        border: 2px dashed #b7c3d4;
+        border-radius: 10px;
+        padding: 16px;
+        background: #fafbfe;
+        cursor: pointer;
+        text-align: center;
+        transition: border-color 0.15s, background 0.15s;
+      }
+      .picker:hover {
+        border-color: #2d6cdf;
+        background: #f3f7ff;
+      }
+      .picker.dragover {
+        border-color: #2d6cdf;
+        background: #e8f0ff;
+      }
+      .picker .icon-big {
+        font-size: 34px;
+        line-height: 1;
+        color: #8fa3c0;
+      }
+      .picker .tip {
+        font-size: 13px;
+        color: #667;
+        line-height: 1.6;
+      }
+      .picker .tip b {
+        color: #2d6cdf;
+      }
+      .picker .fname {
+        font-size: 12px;
+        color: #27ae60;
+        word-break: break-all;
+        max-width: 100%;
+      }
+      .picker img {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        border-radius: 8px;
+        background: #fff;
+        border: 1px solid #e3e8f0;
+        box-shadow: 0 1px 4px rgba(20, 40, 80, 0.08);
+      }
+      .picker input[type="file"] {
+        display: none;
+      }
+      #log {
+        margin-top: 16px;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        border-radius: 8px;
+        padding: 12px;
+        height: 300px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-family: "Cascadia Code", Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .hint {
+        font-size: 12px;
+        color: #999;
+        margin-top: 6px;
+        line-height: 1.6;
+      }
+      .rules {
+        font-size: 12px;
+        color: #777;
+        background: #f6f8fb;
+        border: 1px solid #e5eaf1;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-top: 14px;
+        line-height: 1.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>文件图标更换器</h1>
+        <p class="sub">
+          上传一张 PNG/JPG，把它变成目标文件 / 文件夹的新图标（需后台）
+        </p>
+
+        <div class="status">
+          <span class="dot" id="dot"></span>
+          <span id="statusText">正在检测后台…</span>
+        </div>
+
+        <label for="apiBase"
+          >后台地址（改了端口就先改这里，自动记忆；需与 start-server.bat
+          端口一致）</label
+        >
+        <div class="row">
+          <input
+            id="apiBase"
+            type="text"
+            placeholder="http://localhost:18789"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <label for="targetPath"
+          >目标路径（.lnk 快捷方式 / 文件夹 / 普通文件 均可）</label
+        >
+        <div class="row">
+          <input
+            id="targetPath"
+            type="text"
+            placeholder="例如：D:/software/functionPage 或者 D:/xx/某程序.lnk"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <label for="image">图标素材（必须使用你上传的 PNG / JPG）</label>
+        <div class="picker" id="picker" title="点击选择，或把图片直接拖到这里">
+          <input id="image" type="file" accept=".png,.jpg,.jpeg" />
+          <img id="preview" alt="预览" style="display: none" />
+          <span class="icon-big" id="pickIcon">🖼️</span>
+          <span class="tip" id="pickTip">把 PNG / JPG 图片<b>拖到这里</b>，或<b>点击选择</b></span>
+          <span class="fname" id="pickName" style="display: none"></span>
+        </div>
+        <p class="hint">
+          原图与新图标会一起保存到目标所在文件夹，请勿事后删除（否则图标回退默认）。
+        </p>
+
+        <div class="row" style="margin-top: 14px">
+          <button class="btn" id="sendBtn" disabled>更换图标</button>
+        </div>
+
+        <div class="rules">
+          处理规则：<br />
+          ① .lnk 快捷方式 → 改它自己的图标字段（指向不变），图标存到它指向的文件/文件夹所在目录；<br />
+          ② 文件夹 → 写 desktop.ini 直接换图标，图标存到该文件夹内；<br />
+          ③ 普通文件 → Windows 限制无法单独改本体图标，会在同目录生成带新图标的
+          .lnk 快捷方式（双击 = 打开原文件）。<br />
+          图标文件命名跟随目标名，如 Photos（文件夹）→ Photos.ico。
+        </div>
+
+        <div id="log"></div>
+      </div>
+    </div>
+
+    <script src="../../base.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>

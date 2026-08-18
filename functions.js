@@ -25,4 +25,10 @@ window.FUNCTIONS = [
     icon: "📤",
     desc: "输入 .md 绝对路径，编辑配置，一键发到公众号草稿箱（需后台）",
   },
+  {
+    id: "file-icon",
+    name: "文件图标更换器",
+    icon: "🖼️",
+    desc: "上传 PNG/JPG + 输入目标路径，一键更换文件/文件夹图标（需后台）",
+  },
 ];

@@ -2,6 +2,7 @@
 // 职责：启动服务 + 自动装载 routes/*.js + CORS + 健康检查。
 // 以后加功能：只需在 routes/ 下新增一个 <id>.js（默认导出 function(app)），主干不动。
 import { serve } from "@hono/node-server";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { readdirSync } from "node:fs";
@@ -39,6 +40,10 @@ for (const file of readdirSync(routesDir)) {
     console.log(`[router] loaded: ${file}`);
   }
 }
+
+// 静态文件服务：直接用 http://localhost:PORT/ 打开首页（挂在 API 之后，不影响 /api/*）
+// start-server.bat 的 cwd 是 server/，所以 root 用 ../ 指向项目根。
+app.use("*", serveStatic({ root: "../", index: "index.html" }));
 
 serve({ fetch: app.fetch, port: PORT }, (info) => {
   console.log(`功能网页后台已启动: http://localhost:${info.port}`);
