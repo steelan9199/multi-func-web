@@ -141,8 +141,8 @@ export default function (app) {
           }
 
           if (i < START_ORDER.length - 1) {
-            send("[等待] 3 秒...\n\n");
-            await sleep(3000);
+            send("[等待] 1 秒...\n\n");
+            await sleep(1000);
           }
         }
 
