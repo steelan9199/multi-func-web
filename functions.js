@@ -31,4 +31,10 @@ window.FUNCTIONS = [
     icon: "🖼️",
     desc: "上传 PNG/JPG + 输入目标路径，一键更换文件/文件夹图标（需后台）",
   },
+  {
+    id: "recorder-control",
+    name: "录课助手",
+    icon: "🎬",
+    desc: "一键启停视频课程录制的四个辅助程序（需后台）",
+  },
 ];
