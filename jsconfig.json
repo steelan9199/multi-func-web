@@ -1,0 +1,90 @@
+{
+  "compilerOptions": {
+    // 允许 JavaScript 文件参与项目检查。jsconfig.json 中通常应保持为 true。
+    "allowJs": true,
+
+    // 对 JavaScript 文件执行类型检查，并在编辑器中显示相关诊断信息。
+    "checkJs": true,
+
+    // 使用严格的未使用局部变量检查；未使用的变量会被标记出来。
+    "noUnusedLocals": true,
+
+    // 使用严格的未使用参数检查；未使用的函数参数会被标记出来。
+    "noUnusedParameters": true,
+
+    // 指定代码编译到的 JavaScript 版本。ES2020 支持现代语法和运行时特性。
+    "target": "ES2022",
+
+    // 指定模块输出格式。CommonJS 适用于 Node.js 的传统 require/module.exports。
+    // 使用 import/export 的项目通常改为 "ES2020"、"ESNext" 或由构建工具指定。
+    // | 配置 | 含义 | 适用场景 |
+    // |---|---|---|
+    // | `"CommonJS"` | 使用 `require()`、`module.exports` | 传统 Node.js 项目 |
+    // | `"ESNext"` | 使用原生 `import`、`export`，按最新标准处理 | Vite、Webpack、Rollup、tsup 等构建工具 |
+    // | `"NodeNext"` | 按 Node.js 的规则判断 CommonJS 和 ES Module | 直接运行在 Node.js 中的项目 |
+    "module": "NodeNext",
+
+    // 指定模块查找方式。未配置时由 TypeScript 根据 module 和环境选择默认规则。
+    // 新版 TypeScript 的 Node.js 项目可使用 "NodeNext"，构建工具项目可使用 "Bundler"。
+    // "moduleResolution": "NodeNext",
+
+    // 启用严格类型检查的总开关。对已有项目启用前应先处理新增诊断。
+    "strict": true,
+
+    // 不允许隐式推断出 any 类型，能尽早发现缺少类型信息的问题。
+    // "noImplicitAny": true,
+
+    // 严格检查 this 的类型，避免 this 在不同调用方式下产生隐蔽错误。
+    "noImplicitThis": true,
+
+    // 严格区分 null 和 undefined 与其他类型。通常由 strict 一并启用。
+    "strictNullChecks": true
+
+    // 允许从没有默认导出的 CommonJS 模块中使用默认导入语法。
+    // "esModuleInterop": true,
+
+    // 在未启用 esModuleInterop 时，也允许使用默认导入的类型推断方式。
+    // "allowSyntheticDefaultImports": true,
+
+    // 允许代码通过 import 读取 JSON 文件。
+    // "resolveJsonModule": true,
+
+    // 允许导入 JavaScript 文件。allowJs 已经覆盖当前工作区的常见需求。
+    // "allowImportingTsExtensions": true,
+
+    // 指定项目根目录。配置路径别名时通常与 baseUrl 一起使用。
+    // "baseUrl": ".",
+
+    // 配置路径别名；下面示例允许使用 @/* 代替相对路径。
+    // "paths": {
+    //   "@/*": ["src/*"]
+    // },
+
+    // 指定要自动包含的全局类型声明包；不配置时会自动发现可用类型包。
+    // "types": ["node"],
+
+    // 指定额外的类型声明文件目录。一般不需要手动配置。
+    // "typeRoots": ["./node_modules/@types", "./types"],
+
+    // 设置 JSX 的转换方式。只有 React 或其他 JSX 项目才需要配置。
+    // "jsx": "react-jsx",
+
+    // 生成源映射，便于调试时从生成代码定位回源代码。
+    // "sourceMap": true,
+
+    // 生成声明文件。主要用于发布 TypeScript/JavaScript 库，普通脚本通常不需要。
+    // "declaration": true,
+
+    // 指定输出目录。jsconfig.json 通常只用于编辑器检查，构建输出由构建工具负责。
+    // "outDir": "./dist",
+
+    // 允许导入未声明类型的模块；会降低类型检查严格程度，建议只在必要时启用。
+    // "noImplicitAny": false
+  },
+
+  // 明确纳入 JavaScript 文件和全局类型声明文件。
+  "include": ["**/*.js", "**/*.d.ts"],
+
+  // 不参与当前项目检查的文件或目录。node_modules 和临时文件通常应排除。
+  "exclude": ["node_modules", "temp"]
+}

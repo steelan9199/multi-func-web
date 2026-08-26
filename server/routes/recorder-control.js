@@ -1,11 +1,12 @@
 // 路由插件：录课助手
-// GET  /api/recorder-control/status -> 检查4个录课程序的运行状态
-// POST /api/recorder-control/start  -> 按顺序启动4个程序，流式返回日志
-// POST /api/recorder-control/stop   -> 按反序关闭4个程序，流式返回日志
+// GET  /api/recorder-control/status  -> 检查4个录课程序的运行状态
+// POST /api/recorder-control/start   -> 按顺序启动4个程序，流式返回日志
+// POST /api/recorder-control/stop    -> 按反序关闭4个程序，流式返回日志
+// POST /api/recorder-control/toggle  -> 单独启停某个程序 { program: "broadcast"|"pointerfocus"|"carnac"|"obs" }
 //
-// 启动顺序：NVIDIA Broadcast → PointerFocus → Carnac → Recordly（每步间隔3秒）
-// 关闭顺序：Recordly → Carnac → PointerFocus → NVIDIA Broadcast（反向）
-// 音频链路：麦克风 → NVIDIA Broadcast（降噪） → Recordly（录制）
+// 启动顺序：NVIDIA Broadcast → PointerFocus → Carnac → OBS（每步间隔3秒）
+// 关闭顺序：OBS → Carnac → PointerFocus → NVIDIA Broadcast（反向）
+// 音频链路：麦克风 → NVIDIA Broadcast（降噪） → OBS（录制）
 
 import { spawn } from "node:child_process";
 
@@ -33,24 +34,24 @@ var PROGRAMS = {
       'Start-Process -FilePath "C:\\Windows\\explorer.exe" -ArgumentList "C:\\Users\\Administrator\\AppData\\Local\\carnac\\Carnac.exe"',
     stopPS: 'Stop-Process -Name "Carnac" -Force -ErrorAction SilentlyContinue',
   },
-  recordly: {
-    name: "Recordly",
+  obs: {
+    name: "OBS",
     icon: "\u{1F4F9}",
     startPS:
-      'Start-Process -FilePath "C:\\Windows\\explorer.exe" -ArgumentList "C:\\Users\\Administrator\\AppData\\Local\\Programs\\recordly\\Recordly.exe"',
-    stopPS: 'Stop-Process -Name "Recordly" -Force -ErrorAction SilentlyContinue',
+      'Start-Process -FilePath "D:\\software\\obs\\obs-studio\\bin\\64bit\\obs64.exe" -WorkingDirectory "D:\\software\\obs\\obs-studio\\bin\\64bit\\"',
+    stopPS: 'Stop-Process -Name "obs64" -Force -ErrorAction SilentlyContinue',
   },
 };
 
-var START_ORDER = ["broadcast", "pointerfocus", "carnac", "recordly"];
-var STOP_ORDER = ["recordly", "carnac", "pointerfocus", "broadcast"];
+var START_ORDER = ["broadcast", "pointerfocus", "carnac", "obs"];
+var STOP_ORDER = ["obs", "carnac", "pointerfocus", "broadcast"];
 
 function runPS(command) {
   return new Promise(function (resolve) {
     var child = spawn(
       "powershell.exe",
       ["-NoProfile", "-NonInteractive", "-Command", command],
-      { windowsHide: true }
+      { windowsHide: true },
     );
     var stdout = "";
     var stderr = "";
@@ -86,7 +87,7 @@ function checkStatus() {
         broadcast: lower.includes("nvidia broadcast"),
         pointerfocus: lower.includes("pointerfocus"),
         carnac: lower.includes("carnac"),
-        recordly: lower.includes("recordly"),
+        obs: lower.includes("obs64"),
       });
     });
   });
@@ -107,6 +108,50 @@ export default function (app) {
     return c.json({ ok: true, status: status });
   });
 
+  app.post("/api/recorder-control/toggle", async function (c) {
+    var body;
+    try {
+      body = await c.req.json();
+    } catch {
+      return c.json({ ok: false, error: "请求体不是合法 JSON" }, 400);
+    }
+    var key = body && body.program;
+    if (!key || !PROGRAMS[key]) {
+      return c.json(
+        { ok: false, error: "缺少 program 或值无效" },
+        400,
+      );
+    }
+
+    var prog = PROGRAMS[key];
+    var status = await checkStatus();
+    if (!status) {
+      return c.json({ ok: false, error: "无法检查进程状态" }, 500);
+    }
+
+    var wasRunning = status[key];
+    var action = wasRunning ? "stop" : "start";
+
+    var r = await runPS(prog[action + "PS"]);
+    if (r.code !== 0 && r.stderr.trim()) {
+      return c.json({
+        ok: false,
+        error: prog.name + " " + action + " 失败: " + r.stderr.trim(),
+      });
+    }
+
+    await sleep(2000);
+    var newStatus = await checkStatus();
+    var nowRunning = newStatus ? newStatus[key] : !wasRunning;
+
+    return c.json({
+      ok: true,
+      program: key,
+      action: action,
+      running: nowRunning,
+    });
+  });
+
   app.post("/api/recorder-control/start", async function (c) {
     var encoder = new TextEncoder();
     var stream = new ReadableStream({
@@ -117,31 +162,54 @@ export default function (app) {
 
         send("[开始] 正在启动录课环境...\n\n");
 
+        var preStatus = await checkStatus();
+
         for (var i = 0; i < START_ORDER.length; i++) {
           var key = START_ORDER[i];
           var prog = PROGRAMS[key];
+
+          if (preStatus && preStatus[key]) {
+            send(
+              "[" +
+                (i + 1) +
+                "/" +
+                START_ORDER.length +
+                "] \u23ED\uFE0F \u8DF3\u8FC7 " +
+                prog.icon +
+                " " +
+                prog.name +
+                " \uFF08\u5DF2\u5728\u8FD0\u884C\uFF09\n",
+            );
+            continue;
+          }
+
           send(
             "[" +
               (i + 1) +
               "/" +
               START_ORDER.length +
-              "] 启动 " +
+              "] \u542F\u52A8 " +
               prog.icon +
               " " +
               prog.name +
-              "...\n"
+              "...\n",
           );
+
+          if (key === "obs") {
+            send("[\u7B49\u5F85] \u5176\u4ED6\u5F55\u8BFE\u7A0B\u5E8F\u542F\u52A8\u5B8C\u6210\uFF0C1 \u79D2\u540E\u542F\u52A8 OBS...\n\n");
+            await sleep(1111);
+          }
 
           var r = await runPS(prog.startPS);
           if (r.code !== 0) {
-            send("[警告] " + prog.name + " 启动命令返回码: " + r.code + "\n");
+            send("[\u8B66\u544A] " + prog.name + " \u542F\u52A8\u547D\u4EE4\u8FD4\u56DE\u7801: " + r.code + "\n");
             if (r.stderr.trim()) {
               send("[stderr] " + r.stderr.trim() + "\n");
             }
           }
 
           if (i < START_ORDER.length - 1) {
-            send("[等待] 1 秒...\n\n");
+            send("[\u7B49\u5F85] 1 \u79D2...\n\n");
             await sleep(1000);
           }
         }
@@ -161,7 +229,7 @@ export default function (app) {
                 p.name +
                 ": " +
                 (running ? "\u2713 运行中" : "\u2717 未检测到") +
-                "\n"
+                "\n",
             );
           }
 
@@ -210,7 +278,7 @@ export default function (app) {
               prog.icon +
               " " +
               prog.name +
-              "...\n"
+              "...\n",
           );
 
           var r = await runPS(prog.stopPS);
@@ -236,7 +304,7 @@ export default function (app) {
                     p.icon +
                     " " +
                     p.name +
-                    ": 仍在运行，可能需要手动关闭\n"
+                    ": 仍在运行，可能需要手动关闭\n",
                 );
               }
             }

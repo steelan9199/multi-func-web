@@ -63,13 +63,30 @@
         border: 1px solid var(--border);
         border-radius: 12px;
         background: #fafbfc;
+        cursor: pointer;
+        user-select: none;
         transition:
           border-color 0.2s,
-          background 0.2s;
+          background 0.2s,
+          transform 0.1s;
+      }
+      .prog-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-1px);
+      }
+      .prog-card:active {
+        transform: translateY(0);
+      }
+      .prog-card.loading {
+        opacity: 0.6;
+        pointer-events: none;
       }
       .prog-card.running {
         border-color: var(--ok);
         background: #f0fdf4;
+      }
+      .prog-card.running:hover {
+        border-color: var(--ok);
       }
       .prog-icon {
         font-size: 22px;
@@ -178,7 +195,7 @@
     <div class="wrap">
       <div class="card">
         <h1>录课助手</h1>
-        <p class="sub">一键启停视频课程录制的四个辅助程序</p>
+        <p class="sub">一键启停视频课程录制的四个辅助程序 · 点击下方卡片可单独启停</p>
 
         <div class="backend-row">
           <span class="status-dot" id="backendDot"></span>
@@ -205,11 +222,11 @@
 
         <div class="info-box">
           <strong>启动顺序</strong>：NVIDIA Broadcast → PointerFocus → Carnac →
-          Recordly（每步间隔 3 秒）<br />
-          <strong>关闭顺序</strong>：Recordly → Carnac → PointerFocus → NVIDIA
+          OBS（每步间隔 3 秒）<br />
+          <strong>关闭顺序</strong>：OBS → Carnac → PointerFocus → NVIDIA
           Broadcast（反向）<br />
           <strong>音频链路</strong>：麦克风 → NVIDIA Broadcast（降噪） →
-          Recordly（录制）<br />
+          OBS（录制）<br />
           <strong>注意</strong>：仅支持 Windows 11 环境，使用前请先双击
           <code>start-server.bat</code> 启动后台
         </div>
