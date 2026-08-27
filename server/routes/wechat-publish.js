@@ -10,8 +10,8 @@ import { dirname, join } from "node:path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // 发布技能目录（仅读取与执行其 scripts/index.js，不修改技能内任何文件）
-const SKILL_DIR =
-  "C:/Users/Administrator/.workbuddy/skills/wechat-publisher-yashu";
+const SKILL_DIR = "C:/Users/Administrator/.workbuddy/skills/wechat-publisher-yashu";
+// const SKILL_DIR = "D:\\skill\\private-skills\\.agents\\skills\\wechat-publisher-yashu";
 // 本功能独立副本配置（首次从技能 config.default.json 初始化，之后由网页编辑）
 const CONFIG_PATH = join(
   __dirname,
