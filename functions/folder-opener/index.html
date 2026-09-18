@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文件夹快速打开器</title>
+    <link rel="stylesheet" href="../../style.css" />
+    <style>
+      /* 本页以长路径为主，卡片加宽，尽量别让路径折行 */
+      .wrap {
+        max-width: 1080px;
+      }
+      .topbar-inner {
+        max-width: 1080px;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        margin-bottom: 12px;
+        color: #666;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #c0392b;
+      }
+      .dot.on {
+        background: #27ae60;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: #555;
+        margin: 14px 0 6px;
+      }
+      input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        font-family: "Cascadia Code", Consolas, "Microsoft YaHei", monospace;
+        font-size: 13px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fafafa;
+        color: #222;
+        outline: none;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+      .row input {
+        flex: 1;
+      }
+      .btn {
+        background: #2d6cdf;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 9px 14px;
+        font-size: 13px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.15s;
+      }
+      .btn:hover:not(:disabled) {
+        background: #1d55bd;
+      }
+      .btn:disabled {
+        background: #a9c0e8;
+        cursor: not-allowed;
+      }
+      .btn.secondary {
+        background: #eef1f6;
+        color: #444;
+      }
+      .btn.secondary:hover:not(:disabled) {
+        background: #e2e6ee;
+      }
+      .btn.small {
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 6px;
+      }
+
+      /* ---- 文件夹行 ---- */
+      .list-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 18px 0 8px;
+      }
+      .list-head span {
+        font-size: 13px;
+        color: #555;
+      }
+      .folder-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .folder-row .idx {
+        flex: 0 0 18px;
+        padding-top: 9px;
+        text-align: center;
+        font-size: 11px;
+        color: #bbb;
+        font-family: "Cascadia Code", Consolas, monospace;
+        user-select: none;
+      }
+
+      /* 路径输入：自适应高度，长路径自动折行完整显示（最多 3 行，再多则内部滚动） */
+      .folder-row textarea {
+        flex: 1;
+        min-width: 0;
+        font-family: "Cascadia Code", Consolas, "Microsoft YaHei", monospace;
+        font-size: 13px;
+        line-height: 1.5;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 9px 12px;
+        background: #fafafa;
+        color: #222;
+        outline: none;
+        resize: none;
+        overflow-y: auto;
+        max-height: 96px;
+        white-space: pre-wrap;
+        word-break: break-all;
+        transition: border-color 0.15s, background 0.15s;
+      }
+      .folder-row textarea:focus {
+        border-color: #2d6cdf;
+        background: #fff;
+      }
+      .folder-row textarea.err {
+        border-color: #e5484d;
+        background: #fff5f5;
+      }
+      .folder-row .acts {
+        display: flex;
+        gap: 6px;
+        padding-top: 1px;
+      }
+      .hint {
+        font-size: 12px;
+        color: #999;
+        margin-top: 10px;
+        line-height: 1.7;
+      }
+      .hint code {
+        background: #f2f4f7;
+        border-radius: 4px;
+        padding: 1px 5px;
+        font-family: "Cascadia Code", Consolas, monospace;
+      }
+
+      /* ---- 弹框 ---- */
+      .mask {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        padding: 20px;
+      }
+      .mask.show {
+        display: flex;
+      }
+      .dialog {
+        background: #fff;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 560px;
+        padding: 20px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      }
+      .dialog h2 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        color: #c0392b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .dialog p {
+        margin: 0 0 10px;
+        font-size: 13px;
+        color: #444;
+        line-height: 1.6;
+      }
+      .dialog .pathbox {
+        background: #f7f8fa;
+        border: 1px solid #e8eaed;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-family: "Cascadia Code", Consolas, "Microsoft YaHei", monospace;
+        font-size: 12.5px;
+        color: #222;
+        word-break: break-all;
+        white-space: pre-wrap;
+        max-height: 160px;
+        overflow: auto;
+        user-select: all;
+      }
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>文件夹快速打开器</h1>
+        <p class="sub">
+          填写 Win11 文件夹路径，点「打开」直接在资源管理器中打开
+        </p>
+
+        <div class="status">
+          <span class="dot" id="dot"></span>
+          <span id="statusText">正在检测后台…</span>
+        </div>
+
+        <label for="apiBase"
+          >后台地址（改了端口就先改这里，自动记住；需与 start-server.bat
+          端口一致）</label
+        >
+        <div class="row">
+          <input
+            id="apiBase"
+            type="text"
+            placeholder="http://localhost:18789"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <div class="list-head">
+          <span>文件夹路径（共 6 个，留空则跳过）</span>
+          <button class="btn secondary small" id="clearAllBtn">全部清空</button>
+        </div>
+
+        <div id="folderRows"></div>
+
+        <p class="hint">
+          只接受文件夹路径；粘贴时带的引号会自动去掉，路径统一使用
+          <code>/</code>，例如 D:/software。输入框会随路径长度自动变高，长路径完整可见。
+        </p>
+      </div>
+    </div>
+
+    <!-- 弹框 -->
+    <div class="mask" id="mask">
+      <div class="dialog">
+        <h2 id="dlgTitle">提示</h2>
+        <p id="dlgMsg"></p>
+        <div class="pathbox" id="dlgPath"></div>
+        <div class="dialog-actions">
+          <button class="btn secondary" id="dlgCopy">复制路径</button>
+          <button class="btn" id="dlgOk">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../base.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>

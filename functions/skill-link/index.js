@@ -3,6 +3,7 @@
   const PREFIX =
     "https://github.com/steelan9199/wechat-publisher/tree/main/skills/";
   const STORAGE_KEY = "skill_link_history";
+  const NAME_KEY = "skill_link_name";
 
   document.getElementById("prefixText").textContent = PREFIX;
 
@@ -13,6 +14,12 @@
   const clearBtn = document.getElementById("clearBtn");
 
   let history = loadHistory();
+
+  // 回填上次输入的技能名，并在输入时实时记忆
+  input.value = localStorage.getItem(NAME_KEY) || "";
+  input.addEventListener("input", function () {
+    try { localStorage.setItem(NAME_KEY, input.value); } catch {}
+  });
 
   function loadHistory() {
     try {
@@ -121,7 +128,6 @@
         showToast("复制失败，请手动复制");
       });
 
-    input.value = "";
     input.focus();
   }
 

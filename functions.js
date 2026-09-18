@@ -37,4 +37,22 @@ window.FUNCTIONS = [
     icon: "🎬",
     desc: "一键启停视频课程录制的四个辅助程序（需后台）",
   },
+  {
+    id: "folder-copy",
+    name: "文件夹复制器",
+    icon: "📁",
+    desc: "输入源文件夹和目标目录，一键复制整个文件夹（自动排除 node_modules、.git 等，需后台）",
+  },
+  {
+    id: "folder-opener",
+    name: "文件夹快速打开器",
+    icon: "📂",
+    desc: "6 个路径输入框，一键在资源管理器中打开对应文件夹（需后台）",
+  },
+  {
+    id: "phone-latest-videos",
+    name: "手机最新视频取回",
+    icon: "🎥",
+    desc: "取回手机系统相机里最新的 N 个视频，存到指定文件夹并自动打开（需后台）",
+  },
 ];

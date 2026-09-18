@@ -3,6 +3,8 @@
   // 后台地址默认端口 18789，可由页面输入框修改并记忆到 localStorage。
   const DEFAULT_API = "http://localhost:18789";
   const STORE_KEY = "wechat-publish-api";
+  const FILE_KEY = "wechat-publish-filepath";
+  const CONFIG_KEY = "wechat-publish-config";
 
   const apiBaseEl = document.getElementById("apiBase");
   const filePathEl = document.getElementById("filePath");
@@ -40,6 +42,7 @@
       const data = await r.json();
       if (data.ok) {
         configEl.value = data.config;
+        try { localStorage.setItem(CONFIG_KEY, data.config); } catch {}
       } else {
         configEl.value = "/* 读取配置失败: " + data.error + " */";
       }
@@ -116,11 +119,24 @@
     checkHealth();
   });
 
+  // 回填上次输入的 Markdown 路径与发布配置；输入时实时记忆
+  filePathEl.value = localStorage.getItem(FILE_KEY) || "";
+  configEl.value = localStorage.getItem(CONFIG_KEY) || "";
+  if (!configEl.value) {
+    configEl.placeholder =
+      "点击「重载配置」从后台加载默认配置，或直接粘贴/编辑配置 JSON";
+  }
+  filePathEl.addEventListener("input", () => {
+    try { localStorage.setItem(FILE_KEY, filePathEl.value); } catch {}
+  });
+  configEl.addEventListener("input", () => {
+    try { localStorage.setItem(CONFIG_KEY, configEl.value); } catch {}
+  });
+
   sendBtn.addEventListener("click", send);
   reloadBtn.addEventListener("click", loadConfig);
 
   checkHealth();
-  loadConfig();
   // 每 5 秒复查一次后台状态
   setInterval(checkHealth, 5000);
 })();

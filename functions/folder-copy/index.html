@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文件夹复制器</title>
+    <link rel="stylesheet" href="../../style.css" />
+    <style>
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        margin-bottom: 12px;
+        color: #666;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #c0392b;
+      }
+      .dot.on {
+        background: #27ae60;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: #555;
+        margin: 14px 0 6px;
+      }
+      input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        font-family: "Cascadia Code", Consolas, "Microsoft YaHei", monospace;
+        font-size: 13px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fafafa;
+        color: #222;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+      .row input {
+        flex: 1;
+      }
+      .btn {
+        background: #2d6cdf;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 18px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .btn:disabled {
+        background: #a9c0e8;
+        cursor: not-allowed;
+      }
+      .btn.secondary {
+        background: #eee;
+        color: #333;
+      }
+      .btn.small {
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 6px;
+      }
+      #log {
+        margin-top: 16px;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        border-radius: 8px;
+        padding: 12px;
+        height: 260px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-family: "Cascadia Code", Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .hint {
+        font-size: 12px;
+        color: #999;
+        margin-top: 6px;
+      }
+      .exclude-section {
+        margin-top: 14px;
+        background: #f7f8fa;
+        border: 1px solid #e8eaed;
+        border-radius: 8px;
+        padding: 12px;
+      }
+      .exclude-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      .exclude-head label {
+        margin: 0;
+        font-weight: 600;
+        color: #333;
+        font-size: 13px;
+      }
+      .exclude-actions {
+        display: flex;
+        gap: 6px;
+      }
+      .exclude-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        min-height: 28px;
+      }
+      .exclude-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #e8eaed;
+        color: #333;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-family: "Cascadia Code", Consolas, monospace;
+      }
+      .exclude-tag .remove {
+        cursor: pointer;
+        color: #888;
+        font-weight: bold;
+        padding: 0 2px;
+      }
+      .exclude-tag .remove:hover {
+        color: #e5484d;
+      }
+      .exclude-add {
+        display: flex;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .exclude-add input {
+        flex: 1;
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+      .exclude-add button {
+        padding: 6px 14px;
+        font-size: 12px;
+        border-radius: 6px;
+      }
+      .exclude-empty {
+        font-size: 12px;
+        color: #aaa;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>文件夹复制器</h1>
+        <p class="sub">输入源文件夹和目标目录，一键复制整个文件夹（可自定义排除项）</p>
+
+        <div class="status">
+          <span class="dot" id="dot"></span>
+          <span id="statusText">正在检测后台…</span>
+        </div>
+
+        <label for="apiBase"
+          >后台地址（改了端口就先改这里，自动记住；需与 start-server.bat
+          端口一致）</label
+        >
+        <div class="row">
+          <input
+            id="apiBase"
+            type="text"
+            placeholder="http://localhost:18789"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <label for="srcPath">源文件夹（要复制的文件夹绝对路径）</label>
+        <div class="row">
+          <input
+            id="srcPath"
+            type="text"
+            placeholder="例如：C:\Users\Admin\.trae-cn\skills\my-skill"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <label for="destPath">目标目录（源文件夹将被复制到此目录下）</label>
+        <div class="row">
+          <input
+            id="destPath"
+            type="text"
+            placeholder="例如：D:\software\skills\skills"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+        <p class="hint">结果路径 = 目标目录 / 源文件夹名</p>
+
+        <div class="exclude-section">
+          <div class="exclude-head">
+            <label>排除项（点击 × 可删除，下方可添加）</label>
+            <div class="exclude-actions">
+              <button class="btn secondary small" id="resetExcludesBtn">恢复默认</button>
+              <button class="btn secondary small" id="clearExcludesBtn">清空</button>
+            </div>
+          </div>
+          <div class="exclude-tags" id="excludeTags">
+            <span class="exclude-empty">加载中…</span>
+          </div>
+          <div class="exclude-add">
+            <input
+              id="newExcludeInput"
+              type="text"
+              placeholder="输入要排除的文件夹/文件名，如：node_modules"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button class="btn secondary" id="addExcludeBtn">添加</button>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 14px">
+          <button class="btn" id="copyBtn" disabled>开始复制</button>
+        </div>
+
+        <div id="log"></div>
+      </div>
+    </div>
+
+    <script src="../../base.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>

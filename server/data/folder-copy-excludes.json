@@ -1,0 +1,14 @@
+[
+  "node_modules",
+  "output",
+  ".cache",
+  ".temp",
+  ".tmp",
+  ".env",
+  ".env.local",
+  "secret.txt",
+  "credentials.json",
+  ".vscode",
+  ".idea",
+  "task-results"
+]

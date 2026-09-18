@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>手机最新视频取回</title>
+    <link rel="stylesheet" href="../../style.css" />
+    <style>
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        margin-bottom: 12px;
+        color: #666;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #c0392b;
+        flex: none;
+      }
+      .dot.on {
+        background: #27ae60;
+      }
+      .dot.warn {
+        background: #e8a33d;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: #555;
+        margin: 14px 0 6px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .row input {
+        flex: 1;
+        min-width: 0;
+      }
+      .count-row input {
+        max-width: 120px;
+        flex: none;
+      }
+      .hint {
+        font-size: 12px;
+        color: #999;
+        margin-top: 6px;
+      }
+      .quick {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
+      button.mini {
+        font-size: 12px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        background: #eef3ff;
+        color: var(--primary);
+        white-space: nowrap;
+      }
+      button.mini:hover {
+        background: #e0e9ff;
+      }
+      button.mini:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .actions {
+        margin-top: 18px;
+      }
+      button.big {
+        width: 100%;
+        padding: 12px 18px;
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        color: #fff;
+        background: var(--primary);
+        transition: background 0.15s;
+      }
+      button.big:hover:not(:disabled) {
+        background: var(--primary-hover);
+      }
+      button.big:disabled {
+        background: #a9c0e8;
+        cursor: not-allowed;
+      }
+
+      /* ---- 极简进度区 ---- */
+      #progressWrap {
+        margin-top: 20px;
+      }
+      .track {
+        height: 8px;
+        border-radius: 6px;
+        background: #eceff3;
+        overflow: hidden;
+      }
+      .fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 6px;
+        background: var(--primary);
+        transition: width 0.25s ease;
+      }
+      .fill.indet {
+        width: 35%;
+        animation: slide 1.1s ease-in-out infinite;
+      }
+      .fill.done {
+        background: var(--ok);
+      }
+      .fill.err {
+        background: #e5484d;
+      }
+      @keyframes slide {
+        0% {
+          margin-left: -35%;
+        }
+        100% {
+          margin-left: 100%;
+        }
+      }
+      .pline {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 8px;
+        font-size: 13px;
+        color: #555;
+      }
+      .pline .txt {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .pline .txt.err {
+        color: #e5484d;
+        white-space: normal;
+        word-break: break-all;
+      }
+      .pline .pct {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+        flex: none;
+      }
+      #noteText {
+        font-size: 12px;
+        color: #999;
+        margin-top: 6px;
+        line-height: 1.5;
+      }
+      #noteText:empty {
+        margin-top: 0;
+      }
+
+      /* ---- 结果清单 ---- */
+      #resultBox {
+        margin-top: 22px;
+        border-top: 1px dashed var(--border);
+        padding-top: 16px;
+      }
+      #resultBox ul.list li {
+        align-items: flex-start;
+      }
+      .fname {
+        flex: 1;
+        min-width: 0;
+        font-size: 13px;
+        word-break: break-all;
+      }
+      .fmeta {
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .ftag {
+        font-size: 11px;
+        padding: 2px 7px;
+        border-radius: 6px;
+        background: #eef3ff;
+        color: var(--primary);
+        white-space: nowrap;
+      }
+      .ftag.warn {
+        background: #fdf3e3;
+        color: #b8791a;
+      }
+      .ftag.err {
+        background: #fdecec;
+        color: #d13438;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>手机最新视频取回</h1>
+        <p class="sub">
+          把手机系统相机里最新拍的视频取回电脑，存到你指定的文件夹并自动打开
+        </p>
+
+        <div class="status">
+          <span class="dot" id="dot"></span>
+          <span id="statusText">正在检测后台…</span>
+        </div>
+
+        <label for="apiBase"
+          >后台地址（改了端口就先改这里，自动记住；需与 start-server.bat
+          端口一致）</label
+        >
+        <div class="row">
+          <input
+            id="apiBase"
+            type="text"
+            placeholder="http://localhost:18789"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <label for="countInput">要取回几个（最新的在最前面，1~20）</label>
+        <div class="row count-row">
+          <input
+            id="countInput"
+            type="text"
+            inputmode="numeric"
+            value="1"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <span class="hint" style="margin: 0"
+            >填 3 就是取最新的 3 个，填 5 就是最新的 5 个</span
+          >
+        </div>
+
+        <label for="destInput">保存到电脑上的哪个文件夹</label>
+        <div class="row">
+          <input
+            id="destInput"
+            type="text"
+            placeholder="例如：D:\视频\手机导出"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="mini" id="openDestBtn" title="在资源管理器中打开这个文件夹">
+            打开
+          </button>
+        </div>
+        <div class="quick">
+          <button class="mini" id="desktopBtn">桌面</button>
+          <button class="mini" id="downloadsBtn">下载</button>
+          <span class="hint" style="margin: 0; align-self: center"
+            >文件夹不存在会自动创建</span
+          >
+        </div>
+
+        <div class="actions">
+          <button class="big" id="fetchBtn" disabled>取回视频</button>
+        </div>
+
+        <div id="progressWrap" hidden>
+          <div class="track"><div class="fill" id="progressFill"></div></div>
+          <div class="pline">
+            <span class="txt" id="progressText">准备中…</span>
+            <span class="pct" id="progressPct"></span>
+          </div>
+          <div id="noteText"></div>
+        </div>
+
+        <div id="resultBox" hidden>
+          <div class="result-label" id="resultLabel"></div>
+          <ul class="list" id="fileList"></ul>
+          <div class="row" style="margin-top: 4px">
+            <button class="mini" id="openAgainBtn">再打开一次文件夹</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../base.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>
