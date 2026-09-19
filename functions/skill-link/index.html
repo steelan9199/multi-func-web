@@ -3,34 +3,217 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>技能链接生成器</title>
+    <title>技能链接 + 常用链接</title>
     <link rel="stylesheet" href="../../style.css" />
+    <style>
+      /* 本页左右两栏、且以长链接为主，容器加宽（同「文件夹快速打开器」） */
+      .wrap {
+        max-width: 1140px;
+      }
+      .topbar-inner {
+        max-width: 1140px;
+      }
+
+      /* ---- 左右分栏 ---- */
+      .split {
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+      }
+      .split > .col {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+      .split > .col.wide {
+        flex: 1.2 1 0;
+      }
+      /* 窄屏自动上下堆叠 */
+      @media (max-width: 980px) {
+        .split {
+          flex-direction: column;
+        }
+        .split > .col,
+        .split > .col.wide {
+          flex: 1 1 auto;
+          width: 100%;
+        }
+      }
+
+      /* ---- 长文本输入框：自适应高度，长链接折行后完整显示（最多 3 行，再多内部滚动） ---- */
+      .path-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .path-row .idx {
+        flex: 0 0 18px;
+        padding-top: 9px;
+        text-align: center;
+        font-size: 11px;
+        color: #bbb;
+        font-family: "Cascadia Code", Consolas, monospace;
+        user-select: none;
+      }
+      textarea.path-input {
+        flex: 1;
+        min-width: 0;
+        font-family: "Cascadia Code", Consolas, "Microsoft YaHei", monospace;
+        font-size: 13px;
+        line-height: 1.5;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 9px 12px;
+        background: #fafafa;
+        color: #222;
+        outline: none;
+        resize: none;
+        overflow-y: auto;
+        max-height: 96px;
+        white-space: pre-wrap;
+        word-break: break-all;
+        transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+      }
+      textarea.path-input::placeholder {
+        color: #aaa;
+      }
+      textarea.path-input:focus {
+        border-color: #2d6cdf;
+        background: #fff;
+      }
+      /* 命中已有那条时的提示高亮 */
+      textarea.path-input.hit {
+        border-color: #2d6cdf;
+        background: #eef3ff;
+        box-shadow: 0 0 0 3px rgba(45, 108, 223, 0.12);
+      }
+      .path-row .acts {
+        display: flex;
+        gap: 6px;
+        padding-top: 1px;
+      }
+
+      /* ---- 按钮（同「文件夹快速打开器」） ---- */
+      .btn {
+        background: #2d6cdf;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 9px 14px;
+        font-size: 13px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.15s;
+      }
+      .btn:hover:not(:disabled) {
+        background: #1d55bd;
+      }
+      .btn:disabled {
+        background: #a9c0e8;
+        cursor: not-allowed;
+      }
+      .btn.secondary {
+        background: #eef1f6;
+        color: #444;
+      }
+      .btn.secondary:hover:not(:disabled) {
+        background: #e2e6ee;
+      }
+      .btn.danger {
+        background: #fdecec;
+        color: #e5484d;
+      }
+      .btn.danger:hover:not(:disabled) {
+        background: #fadada;
+      }
+      .btn.small {
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 6px;
+      }
+
+      /* ---- 常用链接区 ---- */
+      .list-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 18px 0 8px;
+      }
+      .list-head span {
+        font-size: 13px;
+        color: #555;
+      }
+      .list-head .tip {
+        font-size: 12px;
+        color: #999;
+      }
+      .fav-list {
+        max-height: 460px;
+        overflow-y: auto;
+        padding-right: 2px;
+      }
+    </style>
   </head>
   <body>
     <div class="wrap">
-      <div class="card">
-        <h1>技能链接生成器</h1>
-        <p class="sub">输入技能名，一键生成 GitHub 链接并复制到剪贴板</p>
+      <div class="split">
+        <!-- ============ 左：技能链接生成器 ============ -->
+        <div class="card col">
+          <h1>技能链接生成器</h1>
+          <p class="sub">输入技能名，一键生成 GitHub 链接并复制到剪贴板</p>
 
-        <div class="row">
-          <input
-            id="skillName"
-            type="text"
-            placeholder="例如：suffix-to-json-yashu 或 video-course-recorder-yashu"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button class="gen" id="genBtn">生成技能链接</button>
-        </div>
-        <p class="prefix-hint">前缀（固定）：<span id="prefixText"></span></p>
-
-        <div class="history">
-          <div class="history-head">
-            <h2>生成记录</h2>
-            <button class="clear-btn" id="clearBtn">清空</button>
+          <div class="row">
+            <input
+              id="skillName"
+              type="text"
+              placeholder="例如：suffix-to-json-yashu 或 video-course-recorder-yashu"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button class="gen" id="genBtn">生成技能链接</button>
           </div>
-          <ul class="list" id="list"></ul>
-          <div class="empty" id="emptyTip">暂无记录</div>
+          <p class="prefix-hint">前缀（固定）：<span id="prefixText"></span></p>
+
+          <div class="history">
+            <div class="history-head">
+              <h2>生成记录</h2>
+              <button class="clear-btn" id="clearBtn">清空</button>
+            </div>
+            <ul class="list" id="list"></ul>
+            <div class="empty" id="emptyTip">暂无记录</div>
+          </div>
+        </div>
+
+        <!-- ============ 右：常用链接 ============ -->
+        <div class="card col wide">
+          <h1>常用链接</h1>
+          <p class="sub">
+            粘贴长链接自动折行完整显示；行内可直接改，右侧复制 / 删除
+          </p>
+
+          <div class="path-row" id="addRow">
+            <textarea
+              id="addInput"
+              class="path-input"
+              rows="1"
+              placeholder="粘贴链接后按回车添加…"
+              autocomplete="off"
+              spellcheck="false"
+            ></textarea>
+            <div class="acts">
+              <button class="btn small" id="addBtn">添加</button>
+            </div>
+          </div>
+
+          <div class="list-head">
+            <span id="favCount">共 0 条</span>
+            <span class="tip">改动自动保存</span>
+          </div>
+
+          <div class="fav-list" id="favList"></div>
+          <div class="empty" id="favEmpty">
+            还没有收藏链接，在上面粘贴一条试试
+          </div>
         </div>
       </div>
     </div>

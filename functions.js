@@ -3,9 +3,9 @@
 window.FUNCTIONS = [
   {
     id: "skill-link",
-    name: "技能链接生成器",
+    name: "技能链接 + 常用链接",
     icon: "🔗",
-    desc: "输入技能名，一键生成 GitHub 链接并复制到剪贴板",
+    desc: "左边输入技能名生成 GitHub 链接；右边收藏常用长链接，可编辑、复制、删除",
   },
   {
     id: "filename-fix",
